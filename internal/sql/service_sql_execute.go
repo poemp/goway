@@ -3,7 +3,7 @@ package sql
 import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/lunny/log"
-	"github.com/poemp/goway/internal/datasource"
+	db2 "github.com/poemp/goway/internal/db"
 	"github.com/poemp/goway/internal/entity"
 )
 
@@ -11,7 +11,7 @@ import (
 func GetAllHistoryData() []entity.SchemaHistory {
 	sql := GetSelectSQL()
 
-	db := datasource.GetBD()
+	db := db2.GetWayBD()
 	defer db.Close()
 
 	var historys []entity.SchemaHistory
@@ -26,7 +26,7 @@ func GetAllHistoryData() []entity.SchemaHistory {
 func ExcuteCreateTable() bool {
 	sql := GetTableInitSql()
 
-	db := datasource.GetBD()
+	db := db2.GetWayBD()
 	defer db.Close()
 
 	err := db.Exec(sql)
@@ -37,7 +37,7 @@ func ExcuteCreateTable() bool {
 func GetTableExist() bool {
 	sql := GetExistSQL()
 
-	db := datasource.GetBD()
+	db := db2.GetWayBD()
 	defer db.Close()
 
 	var r []string

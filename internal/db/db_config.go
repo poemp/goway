@@ -1,4 +1,4 @@
-package datasource
+package db
 
 import (
 	"fmt"
@@ -8,16 +8,17 @@ import (
 )
 
 // 获取数据库连接
-func GetBD() *gorm.DB {
-	c := inter.Configuration{}
-	source := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s",
-		c.GetHost(), c.GetPort(), c.GetUser(), c.GetDbName(), "disable", c.GetPasswd())
+func GetWayBD() *gorm.DB {
+
 	defer func() {
 		if e := recover(); e != nil {
 			fmt.Println(fmt.Sprintf("recover from a fatal error : %v", e))
 		}
 	}()
-	log.Info("datasource :" + source)
+	c := inter.DefaultTableDataSource()
+	source := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s",
+		c.Host, c.Port, c.User, c.DbName, "disable", c.Password)
+	log.Info("way datasource :" + source)
 	db, err := gorm.Open("postgres", source)
 	db.SingularTable(true)
 	db.LogMode(true)

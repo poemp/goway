@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/lunny/log"
 	"github.com/poemp/goway/internal"
-	"github.com/poemp/goway/internal/datasource"
+	db2 "github.com/poemp/goway/internal/db"
 	"github.com/poemp/goway/internal/en"
 	"github.com/poemp/goway/internal/entity"
 	"github.com/poemp/goway/internal/sql"
@@ -116,7 +116,7 @@ func getValue(e entity.SchemaHistory) []interface{} {
 
 // 执行插入记录
 func insertRecored(e entity.SchemaHistory) {
-	db := datasource.GetBD()
+	db := db2.GetWayBD()
 	defer db.Close()
 
 	insertSql := sql.GetInsertIntoSql()
@@ -128,7 +128,7 @@ func insertRecored(e entity.SchemaHistory) {
 // 返回是否执行成功
 func FlywaySqlFile(info en.FileInfo) bool {
 
-	db := datasource.GetBD()
+	db := db2.GetWayBD()
 	defer db.Close()
 
 	byt, e := ioutil.ReadFile(info.AbsPath)

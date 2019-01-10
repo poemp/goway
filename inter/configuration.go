@@ -11,44 +11,27 @@ const (
 	path       = "migrations"
 )
 
-// 数据连接信息
-type Configuration struct {
+type WayConfigure struct {
+	Host       string
+	Port       string
+	User       string
+	Password   string
+	DbName     string
+	SearchPath string
+	Table      string
+	Path       string
 }
 
-// host
-func (Configuration) GetHost() string {
-	return host
-}
-
-// post
-func (Configuration) GetPort() string {
-	return port
-}
-
-// user
-func (Configuration) GetUser() string {
-	return user
-}
-
-// password
-func (Configuration) GetPasswd() string {
-	return password
-}
-
-// db name
-func (Configuration) GetDbName() string {
-	return dbName
-}
-func (Configuration) GetSearchPath() string {
-	return searchPath
-}
-
-// default table
-func (Configuration) GetTableName() string {
-	return table
-}
-
-// file path
-func (Configuration) GetPath() string {
-	return path
+// DefaultTableDataSource default table name handler
+var DefaultTableDataSource = func() WayConfigure {
+	return WayConfigure{
+		Host:       host,
+		Port:       port,
+		User:       user,
+		Password:   password,
+		DbName:     dbName,
+		SearchPath: searchPath,
+		Table:      table,
+		Path:       path,
+	}
 }

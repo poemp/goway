@@ -14,8 +14,8 @@ import (
 // get all file path
 func GetFilePath() []en.FileInfo {
 
-	configuration := inter.Configuration{}
-	path := configuration.GetPath()
+	configuration := inter.DefaultTableDataSource()
+	path := configuration.Path
 
 	absp, _ := filepath.Abs(path)
 

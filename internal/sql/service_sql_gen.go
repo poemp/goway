@@ -56,8 +56,8 @@ func GetAllField() []entity.FieldType {
 // 获取初始化数据表
 func GetTableInitSql() string {
 	fieldTypes := GetAllField()
-	table := inter.Configuration{}
-	sql := "create table  " + table.GetSearchPath() + "." + table.GetTableName() + "(\n"
+	table := inter.DefaultTableDataSource()
+	sql := "create table  " + table.SearchPath + "." + table.Table + "(\n"
 	var fields []string
 	for _, f := range fieldTypes {
 		switch f.Kind {
@@ -86,29 +86,29 @@ func GetTableInitSql() string {
 // 获得查询sql
 func GetSelectSQL() string {
 	fieldTypes := GetAllField()
-	table := inter.Configuration{}
+	table := inter.DefaultTableDataSource()
 	sql := "select  "
 	var fields []string
 	for _, f := range fieldTypes {
 		fields = append(fields, f.TableColumn)
 	}
 	sql += strings.Join(fields, ", ")
-	sql += " from " + table.GetSearchPath() + "." + table.GetTableName() + " order by installed_on ;"
+	sql += " from " + table.SearchPath + "." + table.Table + " order by installed_on ;"
 	return sql
 }
 
 // 获取表是否存在
 func GetExistSQL() string {
-	i := inter.Configuration{}
-	sql := "select 1 as col   from pg_tables where schemaname = '" + i.GetSearchPath() + "' and tablename = '" + i.GetTableName() + "'"
+	table := inter.DefaultTableDataSource()
+	sql := "select 1 as col   from pg_tables where schemaname = '" + table.SearchPath + "' and tablename = '" + table.Table + "'"
 	return sql
 }
 
 // 获取插入数据的sql
 func GetInsertIntoSql() string {
 	fieldTypes := GetAllField()
-	table := inter.Configuration{}
-	sql := "insert into  " + table.GetSearchPath() + "." + table.GetTableName()
+	table := inter.DefaultTableDataSource()
+	sql := "insert into  " + table.SearchPath + "." + table.Table
 	var fields []string
 	var indexs []string
 	for i, f := range fieldTypes {
