@@ -1,18 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"github.com/poemp/goway/internal/data"
+	"github.com/poemp/goway/way"
+	"regexp"
 )
 
 func main() {
 
-	// 表是否存在
-	e := data.GetTableExist()
-	if !e {
-		data.ExcuteCreateTable()
-	}
+	e := way.Flyway{}
+	e.Execu()
 
-	histotys := data.GetAllHistoryData()
-	fmt.Println(histotys)
+	reg := regexp.MustCompile(`V(\d)+(\.\d+)?__[A-Za-z0-9\-_]+(.sql)$`)
+	println(reg.Match([]byte("V1.123__init-data.sql")))
 }
