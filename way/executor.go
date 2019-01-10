@@ -29,7 +29,7 @@ func genId() int64 {
 }
 
 // 执行
-func (*Flyway) Execu() {
+func (Flyway) Execu() {
 	// 表是否存在
 	e := sql.GetTableExist()
 	if !e {
