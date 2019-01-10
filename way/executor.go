@@ -138,5 +138,5 @@ func FlywaySqlFile(info en.FileInfo) bool {
 	}
 	sqls := string(byt)
 
-	return db.Exec(sqls).Error != nil
+	return db.Exec(sqls).Error == nil
 }
