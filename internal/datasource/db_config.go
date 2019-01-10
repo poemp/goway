@@ -3,6 +3,7 @@ package datasource
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
+	"github.com/lunny/log"
 	"github.com/poemp/goway/inter"
 )
 
@@ -16,6 +17,7 @@ func GetBD() *gorm.DB {
 			fmt.Println(fmt.Sprintf("recover from a fatal error : %v", e))
 		}
 	}()
+	log.Info("datasource :" + source)
 	db, err := gorm.Open("postgres", source)
 	db.SingularTable(true)
 	db.LogMode(true)

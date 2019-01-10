@@ -1,9 +1,10 @@
-package data
+package sql
 
 import (
 	"github.com/poemp/goway/inter"
 	"github.com/poemp/goway/internal/entity"
 	"reflect"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -92,7 +93,7 @@ func GetSelectSQL() string {
 		fields = append(fields, f.TableColumn)
 	}
 	sql += strings.Join(fields, ", ")
-	sql += " from " + table.GetSearchPath() + "." + table.GetTableName() + ";"
+	sql += " from " + table.GetSearchPath() + "." + table.GetTableName() + " order by installed_on ;"
 	return sql
 }
 
@@ -100,5 +101,21 @@ func GetSelectSQL() string {
 func GetExistSQL() string {
 	i := inter.Configuration{}
 	sql := "select 1 as col   from pg_tables where schemaname = '" + i.GetSearchPath() + "' and tablename = '" + i.GetTableName() + "'"
+	return sql
+}
+
+// 获取插入数据的sql
+func GetInsertIntoSql() string {
+	fieldTypes := GetAllField()
+	table := inter.Configuration{}
+	sql := "insert into  " + table.GetSearchPath() + "." + table.GetTableName()
+	var fields []string
+	var indexs []string
+	for i, f := range fieldTypes {
+		fields = append(fields, f.TableColumn)
+		indexs = append(indexs, "$"+strconv.FormatInt(int64(i+1), 10))
+	}
+	sql += " (" + strings.Join(fields, ", ") + " ) "
+	sql += " values (" + strings.Join(indexs, ",") + ");"
 	return sql
 }

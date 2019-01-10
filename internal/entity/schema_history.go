@@ -7,15 +7,14 @@ import (
 
 // 需要保存的数据的表映射
 type SchemaHistory struct {
-	Id            int64
-	Version       string
-	Description   string
-	Types         string
-	Script        string
-	CheckSum      string
-	InstalledOn   time.Time
-	InstalledTime time.Time
-	Success       bool
+	Id          int64
+	Version     string
+	Description string
+	Types       string
+	Script      string
+	CheckSum    string
+	InstalledOn time.Time
+	Success     bool
 }
 
 //数据列保存
