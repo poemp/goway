@@ -95,8 +95,13 @@ func validateRecords(fileInfos []en.FileInfo, historys []entity.SchemaHistory) {
 				internal.Exit()
 			}
 		} else {
-			e.Success = FlywaySqlFile(info)
+			s, m := FlywaySqlFile(info)
+			e.Success = s
 			insertRecored(e)
+			if !s {
+				log.Error(m)
+				internal.Exit()
+			}
 		}
 
 	}
@@ -126,7 +131,7 @@ func insertRecored(e entity.SchemaHistory) {
 
 // 执行sql
 // 返回是否执行成功
-func FlywaySqlFile(info en.FileInfo) bool {
+func FlywaySqlFile(info en.FileInfo) (bool, error) {
 
 	db := db2.GetWayBD()
 	defer db.Close()
@@ -134,9 +139,13 @@ func FlywaySqlFile(info en.FileInfo) bool {
 	byt, e := ioutil.ReadFile(info.AbsPath)
 	if e != nil {
 		log.Error(e.Error())
-		return false
+		return false, e
 	}
 	sqls := string(byt)
 
-	return db.Exec(sqls).Error == nil
+	ee := db.Exec(sqls).Error
+	if ee != nil {
+		return false, ee
+	}
+	return true, nil
 }

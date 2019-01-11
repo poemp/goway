@@ -19,7 +19,7 @@ func GetFilePath() []en.FileInfo {
 
 	absp, _ := filepath.Abs(path)
 
-	log.Info("search path:" + absp + "\n")
+	log.Info("search path:" + absp)
 
 	return getAllPath(absp)
 }
