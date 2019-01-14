@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"encoding/json"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/lunny/log"
 	db2 "github.com/poemp/goway/internal/db"
@@ -9,15 +10,14 @@ import (
 
 // 获取所有的数据
 func GetAllHistoryData() []entity.SchemaHistory {
-	sql := GetSelectSQL()
 
 	db := db2.GetWayBD()
 	defer db.Close()
 
 	var historys []entity.SchemaHistory
-	err := db.Raw(sql).Find(&historys)
-	if err.Error != nil {
-		log.Error(err.Error)
+	err := db.Table(entity.SchemaHistory{}).Find(&historys)
+	if err != nil {
+		log.Error(err.Error())
 	}
 	return historys
 }
@@ -29,7 +29,15 @@ func ExcuteCreateTable() bool {
 	db := db2.GetWayBD()
 	defer db.Close()
 
-	err := db.Exec(sql)
+	session := db.NewSession()
+
+	_, err := session.Exec(sql)
+
+	if err == nil {
+		session.Commit()
+	} else {
+		session.Rollback()
+	}
 	return err != nil
 }
 
@@ -40,12 +48,17 @@ func GetTableExist() bool {
 	db := db2.GetWayBD()
 	defer db.Close()
 
+	session := db.NewSession()
 	var r []string
 
-	err := db.Raw(sql).Find(&r)
+	rr, err := session.Exec(sql)
 
-	if err.Error != nil {
+	if err != nil {
+		session.Rollback()
 		log.Error(err.Error)
+	} else {
+		session.Commit()
 	}
+	log.Info(json.Marshal(rr))
 	return len(r) > 0
 }

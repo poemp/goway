@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -98,9 +99,7 @@ func validateRecords(fileInfos []en.FileInfo, historys []entity.SchemaHistory) {
 				internal.Exit()
 			}
 		} else {
-			s, m := FlywaySqlFile(info)
-			e.Success = s
-			insertRecored(e)
+			s, m := FlywaySqlFile(info, e)
 			if !s {
 				log.Error(info.Name + " execute ERROR")
 				log.Error(m)
@@ -111,45 +110,110 @@ func validateRecords(fileInfos []en.FileInfo, historys []entity.SchemaHistory) {
 	}
 }
 
-// 利用反射获取到数据
-func getValue(e entity.SchemaHistory) []interface{} {
+// 格式化显示数字
+func formatInt64(i int64) string {
+	return strconv.FormatInt(i, 10)
+}
 
-	var ins []interface{}
+// 格式显示时间
+func formatTime(time time.Time) string {
+	return time.Format("2006-01-02 15:04:05")
+}
+
+// 格式显示时间
+func formatTimePoint(time *time.Time) string {
+	return time.Format("2006-01-02 15:04:05")
+}
+
+// 利用反射获取到数据
+func getValue(e entity.SchemaHistory) []string {
+
+	var ins []string
 	t := reflect.ValueOf(e)
 	for i := 0; i < t.NumField(); i++ {
 		v := t.Field(i)
-		ins = append(ins, v.Interface())
+		kind := v.Kind()
+		switch kind {
+		case reflect.Int:
+			ins = append(ins, formatInt64(v.Int()))
+			break
+		case reflect.Int64:
+			ins = append(ins, formatInt64(v.Int()))
+			break
+		case reflect.Int8:
+			ins = append(ins, formatInt64(v.Int()))
+			break
+		case reflect.Int16:
+			ins = append(ins, formatInt64(v.Int()))
+			break
+		case reflect.Int32:
+			ins = append(ins, formatInt64(v.Int()))
+			break
+		case reflect.String:
+			ins = append(ins, v.String())
+			break
+		case reflect.Bool:
+			ins = append(ins, strconv.FormatBool(v.Bool()))
+			break
+		case reflect.Struct:
+			{
+				p, ok := v.Interface().(time.Time)
+				if ok {
+					ins = append(ins, formatTime(p))
+				}
+			}
+		}
 	}
 	return ins
 }
 
-// 执行插入记录
-func insertRecored(e entity.SchemaHistory) {
-	db := db2.GetWayBD()
-	defer db.Close()
-
-	insertSql := sql.GetInsertIntoSql()
-	values := getValue(e)
-	db.Exec(insertSql, values)
-}
-
 // 执行sql
 // 返回是否执行成功
-func FlywaySqlFile(info en.FileInfo) (bool, error) {
+func FlywaySqlFile(info en.FileInfo, entity entity.SchemaHistory) (bool, error) {
 
 	db := db2.GetWayBD()
 	defer db.Close()
+
+	// 开启事物管理
+	session := db.NewSession()
+	session.Begin()
 
 	byt, e := ioutil.ReadFile(info.AbsPath)
 	if e != nil {
 		log.Error(e.Error())
+		session.Rollback()
 		return false, e
 	}
 	sqls := string(byt)
 
-	ee := db.Exec(sqls).Error
-	if ee != nil {
+	r, eesql := session.Exec(sqls)
+	if eesql != nil {
+		session.Rollback()
+		log.Error(eesql.Error())
+		log.Error("rollback this commit")
+	}
+	session.Commit()
+
+	/////////////////////
+	// 开启事物
+	session.Begin()
+	log.Info(r)
+	entity.Success = eesql == nil
+	// 放到同一个事物里面管理
+	insertSql := sql.GetInsertIntoSql(getValue(entity))
+	result, ee := session.Exec(insertSql)
+	if ee == nil {
+		session.Commit()
+	} else {
+		session.Rollback()
+		log.Error(ee.Error())
 		return false, ee
 	}
-	return true, nil
+	log.Info(json.Marshal(result))
+
+	// 提交事物
+	if ee == nil {
+		session.Commit()
+	}
+	return ee == nil && eesql == nil, nil
 }

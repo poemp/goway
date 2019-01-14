@@ -4,7 +4,6 @@ import (
 	"github.com/poemp/goway/inter"
 	"github.com/poemp/goway/internal/entity"
 	"reflect"
-	"strconv"
 	"strings"
 	"unicode"
 )
@@ -87,7 +86,7 @@ func GetTableInitSql() string {
 func GetSelectSQL() string {
 	fieldTypes := GetAllField()
 	table := inter.DefaultTableDataSource()
-	sql := "select  "
+	sql := "   "
 	var fields []string
 	for _, f := range fieldTypes {
 		fields = append(fields, f.TableColumn)
@@ -105,17 +104,16 @@ func GetExistSQL() string {
 }
 
 // 获取插入数据的sql
-func GetInsertIntoSql() string {
+func GetInsertIntoSql(values []string) string {
+
 	fieldTypes := GetAllField()
 	table := inter.DefaultTableDataSource()
 	sql := "insert into  " + table.SearchPath + "." + table.Table
 	var fields []string
-	var indexs []string
-	for i, f := range fieldTypes {
+	for _, f := range fieldTypes {
 		fields = append(fields, f.TableColumn)
-		indexs = append(indexs, "$"+strconv.FormatInt(int64(i+1), 10))
 	}
 	sql += " (" + strings.Join(fields, ", ") + " ) "
-	sql += " values (" + strings.Join(indexs, ",") + ");"
+	sql += " values ('" + strings.Join(values, "','") + "');"
 	return sql
 }
