@@ -91,6 +91,10 @@ func validateRecords(fileInfos []en.FileInfo, historys []entity.SchemaHistory) {
 		e := convertToRecord(info)
 		// 文件比记录要多
 		if i < len(historys) {
+			if !historys[i].Success {
+				log.Error(historys[i].Script + " " + formatTime(historys[i].InstalledOn) + " is Fail")
+				internal.Exit()
+			}
 			if !historyInfoEq(e, historys[i]) {
 				b, _ := json.Marshal(e)
 				bb, _ := json.Marshal(historys[i])
