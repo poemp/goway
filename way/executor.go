@@ -1,6 +1,7 @@
 package way
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/lunny/log"
 	"github.com/poemp/goway/internal"
@@ -90,7 +91,9 @@ func validateRecords(fileInfos []en.FileInfo, historys []entity.SchemaHistory) {
 		// 文件比记录要多
 		if i < len(historys) {
 			if !historyInfoEq(e, historys[i]) {
-				log.Error(info.Name + " not equals : " + historys[i].Script)
+				b, _ := json.Marshal(e)
+				bb, _ := json.Marshal(historys[i])
+				log.Error("\n" + string(b) + " \t\t\t not equals :\n \t\t\t" + string(bb))
 				log.Error("\n Dear. You can't edit this file [" + info.Name + "]\n We will check if there are any changes.\n It's will causes system startup failure.")
 				internal.Exit()
 			}
@@ -99,6 +102,7 @@ func validateRecords(fileInfos []en.FileInfo, historys []entity.SchemaHistory) {
 			e.Success = s
 			insertRecored(e)
 			if !s {
+				log.Error(info.Name + " execute ERROR")
 				log.Error(m)
 				internal.Exit()
 			}
