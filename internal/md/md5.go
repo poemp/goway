@@ -23,5 +23,5 @@ func Md5Has(path string) string {
 		return ""
 	}
 
-	return fmt.Sprintf("%x\n", md5hash.Sum(nil))
+	return fmt.Sprintf("%x", md5hash.Sum(nil))
 }
