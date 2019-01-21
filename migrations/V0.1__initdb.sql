@@ -1486,14 +1486,14 @@ INSERT INTO "t_user"(
 )
 VALUES
 	(
-		'100',r
+		'100',
 		NULL,
 		NULL,
 		'admin',
 		1,
 		'admin',
 		'1234',
-		'0',
+		'1',
 		NULL,
 		'2018-07-24 13:28:30.975905',
 		NULL,

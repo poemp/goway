@@ -1,27 +1,25 @@
 package md
 
 import (
-	"crypto/md5"
 	"fmt"
-	"io"
-	"os"
+	"hash/crc64"
+	"io/ioutil"
 )
 
 // 生成md5的验证码
 func Md5Has(path string) string {
-	f, err := os.Open(path)
+
+	bytes , err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println("Open", err)
 		return ""
 	}
 
-	defer f.Close()
 
-	md5hash := md5.New()
-	if _, err := io.Copy(md5hash, f); err != nil {
-		fmt.Println("Copy", err)
-		return ""
-	}
+	//先创建一个table
+	table := crc64.MakeTable(crc64.ECMA)
+	//传入字节切片和table，返回一个uint64
+	fmt.Println(crc64.Checksum(bytes, table))
 
-	return fmt.Sprintf("%x", md5hash.Sum(nil))
+	return fmt.Sprintf("%x", crc64.Checksum(bytes, table))
 }
