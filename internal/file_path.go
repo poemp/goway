@@ -26,6 +26,8 @@ func GetFilePath() []en.FileInfo {
 	e, fils := getAllPath(absp)
 	if e != nil {
 		log.Error(e.Error())
+		log.Error("格式错误 ， 请按照：V0.1__initdb.sql 方式命名， 格式分割是双下划线")
+		Exit()
 		return nil
 	}
 	sort.Sort(en.FileInfoSlice(fils))
@@ -49,18 +51,26 @@ func getAllPath(pathname string) (error, []en.FileInfo) {
 			fname := fi.Name()
 			strs := strings.Split(fname, "__")
 			v := strings.Replace(strs[0], "V", "", 1)
-			v = strings.Replace(v, ".", "", 1)
-			f, e := strconv.ParseFloat(v, 64)
-			if e != nil {
-				return e, nil
+			// 版本  version v1.9 , v100.232   v2.5
+			versions := strings.Split(v, ".")
+			bigV, bigE := strconv.ParseFloat(versions[0], 64)
+			if bigE != nil {
+				log.Error(bigE.Error())
+				return bigE, nil
+			}
+			minV, minE := strconv.ParseFloat(versions[1], 64)
+			if minE != nil {
+				log.Error(minE.Error())
+				return minE, nil
 			}
 			if strings.HasSuffix(fname, ".sql") {
 				files = append(files, en.FileInfo{
-					File:    fi,
-					AbsPath: pathname + string(os.PathSeparator) + fi.Name(),
-					Name:    fi.Name(),
-					Code:    md.Md5Has(pathname + string(os.PathSeparator) + fi.Name()),
-					Version: f,
+					File:        fi,
+					AbsPath:     pathname + string(os.PathSeparator) + fi.Name(),
+					Name:        fi.Name(),
+					Code:        md.Md5Has(pathname + string(os.PathSeparator) + fi.Name()),
+					BigVersion:  bigV,
+					MiniVersion: minV,
 				})
 			}
 		}

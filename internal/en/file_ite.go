@@ -4,11 +4,12 @@ import "os"
 
 //获取到的文件实体信息
 type FileInfo struct {
-	File    os.FileInfo
-	AbsPath string
-	Name    string
-	Code    string
-	Version float64
+	File        os.FileInfo
+	AbsPath     string
+	Name        string
+	Code        string
+	BigVersion  float64
+	MiniVersion float64
 }
 
 // 按照 Person.Age 从大到小排序
@@ -26,5 +27,9 @@ func (a FileInfoSlice) Swap(i, j int) {
 
 // 重写 Less() 方法， 从大到小排序
 func (a FileInfoSlice) Less(i, j int) bool {
-	return a[i].Version < a[j].Version
+	if a[i].BigVersion == a[j].BigVersion {
+		return a[i].MiniVersion < a[j].MiniVersion
+	}
+	return a[i].BigVersion < a[j].BigVersion
+
 }
