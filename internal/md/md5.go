@@ -11,7 +11,7 @@ func Md5Has(path string) string {
 
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Println("Open", err)
+		fmt.Println("Open Error For Path:"+path, err)
 		return ""
 	}
 
