@@ -180,36 +180,36 @@ func FlywaySqlFile(info en.FileInfo, entity entity.SchemaHistory) (bool, error) 
 
 	// 开启事物管理
 	session := db.NewSession()
-	session.Begin()
+	_ = session.Begin()
 
 	byt, e := ioutil.ReadFile(info.AbsPath)
 	if e != nil {
 		log.Error(e.Error())
-		session.Rollback()
+		_ = session.Rollback()
 		return false, e
 	}
 	sqls := string(byt)
 
 	r, eesql := session.Exec(sqls)
 	if eesql != nil {
-		session.Rollback()
+		_ = session.Rollback()
 		log.Error(eesql.Error())
 		log.Error("rollback this commit")
 	}
-	session.Commit()
+	_ = session.Commit()
 
 	/////////////////////
 	// 开启事物
-	session.Begin()
+	_ = session.Begin()
 	log.Info(r)
 	entity.Success = eesql == nil
 	// 放到同一个事物里面管理
 	insertSql := sql.GetInsertIntoSql(getValue(entity))
 	result, ee := session.Exec(insertSql)
 	if ee == nil {
-		session.Commit()
+		_ = session.Commit()
 	} else {
-		session.Rollback()
+		_ = session.Rollback()
 		log.Error(ee.Error())
 		return false, ee
 	}
@@ -217,7 +217,7 @@ func FlywaySqlFile(info en.FileInfo, entity entity.SchemaHistory) (bool, error) 
 
 	// 提交事物
 	if ee == nil {
-		session.Commit()
+		_ = session.Commit()
 	}
 	return ee == nil && eesql == nil, nil
 }

@@ -34,9 +34,9 @@ func ExcuteCreateTable() bool {
 	_, err := session.Exec(sql)
 
 	if err == nil {
-		session.Commit()
+		_ = session.Commit()
 	} else {
-		session.Rollback()
+		_ = session.Rollback()
 	}
 	return err != nil
 }
@@ -54,11 +54,11 @@ func GetTableExist() bool {
 	rr, err := session.Exec(sql)
 
 	if err != nil {
-		session.Rollback()
+		_ = session.Rollback()
 		log.Error(err.Error)
 	} else {
-		session.Commit()
+		_ = session.Commit()
 	}
 	log.Info(json.Marshal(rr))
-	return len(r) > 0
+	return !(0 >= len(r))
 }
